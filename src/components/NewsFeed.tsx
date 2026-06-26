@@ -22,6 +22,23 @@ import type { ScoredArticle, ExposureAlert as ExposureAlertType, RegimeScore, Si
 const MAX_ARTICLES = 8;
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
+// Seed article shown on first load so the LLM Council button is always demo-able.
+// Replaced by real borderline articles once the first fetch completes.
+// Static timestamps prevent SSR/client hydration mismatch.
+const SEED_ARTICLE: ScoredArticle = {
+  id: "__seed__",
+  title: "Fed signals hold on rates as labor market data clouds near-term cut timeline",
+  description: "FOMC minutes reveal divided committee on timing amid mixed employment signals",
+  url: "https://www.federalreserve.gov/monetarypolicy/fomcminutes20250129.htm",
+  source: "Federal Reserve",
+  publishedAt: "2026-01-29T14:00:00.000Z",
+  relevance: 6,
+  sentiment: "neutral",
+  entities: ["SPY", "TLT", "GLD"],
+  summary: "Divided Fed committee creates rate-path uncertainty — borderline impact depends on duration exposure. Run council for consensus.",
+  scoredAt: "2026-01-29T14:00:00.000Z",
+};
+
 interface Props {
   tickers: string[];
   onHighSignal?: (article: ScoredArticle) => void;
@@ -135,7 +152,7 @@ function ArticleCard({
           <Badge
             variant="outline"
             className="text-[9px] py-0 px-1 h-4"
-            style={{ borderColor: "oklch(0.55 0.15 260 / 0.4)", color: "oklch(0.65 0.12 260)" }}
+            style={{ borderColor: "oklch(0.55 0.15 280 / 0.4)", color: "oklch(0.65 0.12 280)" }}
           >
             council · {article.councilConfidence}
           </Badge>
@@ -144,7 +161,7 @@ function ArticleCard({
             <TooltipTrigger
               onClick={handleCouncil}
               disabled={councilLoading}
-              className="flex items-center gap-0.5 text-[9px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
+              className="flex items-center gap-0.5 text-[9px] px-1 py-0.5 rounded transition-colors disabled:opacity-40 text-[oklch(0.50_0.01_200)] hover:text-[oklch(0.65_0.12_280)] hover:bg-[oklch(0.55_0.15_280_/_0.12)]"
             >
               <Users size={9} className={councilLoading ? "animate-pulse" : ""} />
               {councilLoading ? "…" : "council"}
@@ -158,7 +175,7 @@ function ArticleCard({
 }
 
 export function NewsFeed({ tickers, onHighSignal }: Props) {
-  const [articles, setArticles] = useState<ScoredArticle[]>([]);
+  const [articles, setArticles] = useState<ScoredArticle[]>([SEED_ARTICLE]);
   const [loading, setLoading] = useState(false);
   const [threshold, setThreshold] = useState(3);
   const [alerts, setAlerts] = useState<ExposureAlertType[]>([]);
@@ -263,7 +280,13 @@ export function NewsFeed({ tickers, onHighSignal }: Props) {
         .map((r) => r.value)
         .sort((a, b) => b.relevance - a.relevance);
 
-      setArticles(successful);
+      // Keep seed article if no real borderline articles exist, so council button stays demo-able
+      const hasBorderline = successful.some((a) => a.relevance >= 5 && a.relevance <= 7);
+      const finalArticles = hasBorderline
+        ? successful
+        : [...successful, SEED_ARTICLE].sort((a, b) => b.relevance - a.relevance);
+
+      setArticles(finalArticles);
       setRegime(computeRegime(successful));
       setSignalBars(computeSignalBars(successful));
 

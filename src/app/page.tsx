@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { speak } from "@/lib/tts";
 import Link from "next/link";
-import { BarChart2, BookOpen } from "lucide-react";
+import { BarChart2, BookOpen, Network } from "lucide-react";
 import { WatchlistPanel } from "@/components/WatchlistPanel";
 import { NewsFeed } from "@/components/NewsFeed";
 import { ChatDesk } from "@/components/ChatDesk";
@@ -80,6 +80,15 @@ export default function Dashboard() {
             <BookOpen size={11} />
             Research
           </Link>
+          <a
+            href="/architecture.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-[10px] font-mono text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Network size={11} />
+            Architecture
+          </a>
           <span className="text-[10px] font-mono text-muted-foreground">
             {clockTime}
           </span>

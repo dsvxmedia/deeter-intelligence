@@ -14,14 +14,43 @@ interface Props {
 type JarvisState = "idle" | "listening" | "processing" | "speaking";
 
 const WAVE_HEIGHTS = [30, 55, 80, 60, 90, 45, 70, 85, 50, 75, 40, 65];
+const GREETING = "Deeter Intelligence online. Monitoring positions and live signals. Ready when you are.";
 
 export function JarvisVoice({ onVoiceCommand, pendingAlert }: Props) {
   const [state, setState] = useState<JarvisState>("idle");
   const [transcript, setTranscript] = useState("");
   const [lastAlert, setLastAlert] = useState<string | null>(null);
+  const [voiceSupported, setVoiceSupported] = useState(true);
+
+  useEffect(() => {
+    setVoiceSupported(
+      typeof window !== "undefined" &&
+      ("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
+    );
+  }, []);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const prevAlertId = useRef<string | null>(null);
   const transcriptRef = useRef("");
+  const hasGreeted = useRef(false);
+  // Prefetch greeting audio on mount so play() fires synchronously on first click
+  const greetingBlobUrl = useRef<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: GREETING }),
+    })
+      .then((r) => (r.ok ? r.blob() : null))
+      .then((blob) => {
+        if (blob) greetingBlobUrl.current = URL.createObjectURL(blob);
+      })
+      .catch(() => {});
+
+    return () => {
+      if (greetingBlobUrl.current) URL.revokeObjectURL(greetingBlobUrl.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (
@@ -30,20 +59,41 @@ export function JarvisVoice({ onVoiceCommand, pendingAlert }: Props) {
       pendingAlert.relevance >= 9
     ) {
       prevAlertId.current = pendingAlert.id;
-      const alertText = `Heads up — ${pendingAlert.entities[0] ?? "breaking news"}: ${pendingAlert.summary ?? pendingAlert.title}. Relevance score ${pendingAlert.relevance} out of 10. Want me to pull more context?`;
+      const alertText = `Heads up: ${pendingAlert.entities[0] ?? "breaking news"}: ${pendingAlert.summary ?? pendingAlert.title}. Relevance ${pendingAlert.relevance} of 10.`;
       setLastAlert(alertText);
+      // Display alert visually regardless; attempt audio (requires prior user activation)
       setState("speaking");
-      speak(alertText).finally(() => setState("idle"));
+      speak(alertText).catch(() => {}).finally(() => setState("idle"));
     }
   }, [pendingAlert]);
 
   const startListening = useCallback(() => {
     if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
-      alert("Speech recognition not supported in this browser.");
+      setTranscript("Voice requires Chrome or Edge.");
       return;
     }
 
     stopSpeaking();
+
+    // First click: play greeting (prefetched blob fires synchronously inside user gesture)
+    if (!hasGreeted.current) {
+      hasGreeted.current = true;
+      setState("speaking");
+      setLastAlert(GREETING);
+      const playGreeting = async () => {
+        if (greetingBlobUrl.current) {
+          const audio = new Audio(greetingBlobUrl.current);
+          await audio.play();
+          await new Promise<void>((res) => { audio.onended = () => res(); });
+        } else {
+          await speak(GREETING);
+        }
+      };
+      playGreeting()
+        .catch(() => {})
+        .finally(() => setState("idle"));
+      return;
+    }
 
     const SR = (window as Window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition ??
       (window as Window & { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
@@ -115,7 +165,7 @@ export function JarvisVoice({ onVoiceCommand, pendingAlert }: Props) {
                   : state === "speaking"
                   ? "oklch(0.78 0.18 85)"
                   : state === "processing"
-                  ? "oklch(0.65 0.12 260)"
+                  ? "oklch(0.55 0.12 220)"
                   : "oklch(0.50 0.01 200)",
             }}
           >
@@ -132,7 +182,7 @@ export function JarvisVoice({ onVoiceCommand, pendingAlert }: Props) {
               key={i}
               className={`w-0.5 rounded-full origin-bottom ${isActive ? "wave-bar" : ""}`}
               style={{
-                height: isActive ? `${h}%` : "20%",
+                height: isActive ? `${h}%` : "30%",
                 background: isActive
                   ? state === "speaking"
                     ? "oklch(0.78 0.18 85)"
@@ -147,22 +197,24 @@ export function JarvisVoice({ onVoiceCommand, pendingAlert }: Props) {
 
         <motion.button
           onClick={toggleListen}
-          disabled={state === "processing" || state === "speaking"}
+          disabled={!voiceSupported || state === "processing" || state === "speaking"}
           animate={
-            state === "idle"
+            voiceSupported && state === "idle"
               ? { scale: [1, 1.04, 1], opacity: [0.7, 1, 0.7] }
               : state === "listening"
               ? { scale: 1.1 }
               : { scale: 1 }
           }
           transition={
-            state === "idle"
+            voiceSupported && state === "idle"
               ? { duration: 3, repeat: Infinity, ease: "easeInOut" }
               : { duration: 0.15 }
           }
-          className={`w-12 h-12 rounded-full flex items-center justify-center ${
+          className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
             state === "listening"
               ? "bg-[oklch(0.60_0.17_142)] text-[oklch(0.07_0_0)]"
+              : !voiceSupported
+              ? "bg-secondary/40 text-muted-foreground cursor-not-allowed"
               : "bg-secondary hover:bg-secondary/80 text-foreground"
           } disabled:opacity-40`}
         >
@@ -182,7 +234,8 @@ export function JarvisVoice({ onVoiceCommand, pendingAlert }: Props) {
         )}
 
         <p className="text-[9px] text-muted-foreground text-center">
-          {state === "idle" && "Press to speak"}
+          {!voiceSupported && "Voice requires Chrome or Edge"}
+          {voiceSupported && state === "idle" && "Ask about any position or signal"}
           {state === "listening" && "Listening…"}
           {state === "processing" && "Processing…"}
           {state === "speaking" && "Speaking…"}

@@ -19,10 +19,10 @@ export function ExposureAlert({ alerts, onDismiss }: Props) {
         {alerts.map((alert) => (
           <motion.div
             key={alert.ticker}
-            initial={{ opacity: 0, x: 20, height: 0 }}
-            animate={{ opacity: 1, x: 0, height: "auto" }}
-            exit={{ opacity: 0, x: 20, height: 0 }}
-            transition={{ duration: 0.25 }}
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 12 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
             className="rounded px-3 py-2 flex items-start gap-2"
             style={{
               background: "oklch(0.78 0.18 85 / 0.08)",
@@ -36,7 +36,7 @@ export function ExposureAlert({ alerts, onDismiss }: Props) {
             />
             <div className="flex-1 min-w-0">
               <div className="text-[11px] font-mono font-semibold" style={{ color: "oklch(0.78 0.18 85)" }}>
-                {alert.ticker} — {formatCurrency(alert.exposureUsd)} exposure ({alert.exposurePct.toFixed(1)}%)
+                {alert.ticker}: {formatCurrency(alert.exposureUsd)} exposure ({alert.exposurePct.toFixed(1)}%)
               </div>
               <div className="text-[10px] text-muted-foreground truncate mt-0.5">
                 {alert.article.title}

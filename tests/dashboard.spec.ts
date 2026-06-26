@@ -9,7 +9,7 @@ test.describe("Dashboard — structure and rendering", () => {
 
   test("renders the header with DEETER INTELLIGENCE branding", async ({ page }) => {
     await expect(page.getByText("DEETER INTELLIGENCE")).toBeVisible();
-    await expect(page.getByText("LIVE")).toBeVisible();
+    await expect(page.locator("header").getByText("LIVE", { exact: true })).toBeVisible();
   });
 
   test("renders all three panels", async ({ page }) => {
@@ -130,7 +130,7 @@ test.describe("News Feed panel", () => {
   test("bottom bar shows signal count", async ({ page }) => {
     const section = page.locator("section").first();
     await expect(section.getByText(/signals/i).first()).toBeVisible();
-    await expect(section.getByText(/refreshes every 90s/i).first()).toBeVisible();
+    await expect(section.getByText(/refreshes every 5m/i).first()).toBeVisible();
   });
 
   test("shows skeleton or articles (not blank)", async ({ page }) => {
@@ -193,7 +193,7 @@ test.describe("JARVIS panel", () => {
   });
 
   test("mic button is present", async ({ page }) => {
-    await expect(page.getByText("Press to speak")).toBeVisible();
+    await expect(page.getByText("Ask about any position or signal")).toBeVisible();
   });
 
   test("waveform bars render", async ({ page }) => {

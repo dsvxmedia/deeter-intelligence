@@ -12,7 +12,7 @@ Live: https://deeter-intelligence.vercel.app
 Code: https://github.com/dsvxmedia/deeter-intelligence  
 Architecture: https://deeter-intelligence.vercel.app/architecture.html
 
-It scores every incoming article for portfolio relevance (1-10), runs borderline signals through a three-model LLM council with chairman synthesis, traverses an entity knowledge graph to surface indirect exposure, and speaks proactive alerts for high-relevance items via a JARVIS voice layer. The Python analysis layer handles news normalization and macro scenario backtesting — `python backtest.py` runs four historical shock scenarios against a sample portfolio.
+A signal that gets misclassified costs real money. The hard part isn't filtering noise — it's knowing when you're uncertain. This system is built around that: a fast Claude scoring pass surfaces the clear calls, and a three-model LLM council (Claude + GPT-4o + Gemini) handles the borderline zone where a single model shouldn't be trusted. It traverses an entity knowledge graph to catch indirect exposure — a TSMC supply story surfaces your NVDA position even if the ticker never appears in the headline. JARVIS speaks proactive alerts for high-relevance items so nothing critical dies in a feed. The Python layer handles news normalization and macro scenario backtesting — `python backtest.py` runs four historical shock scenarios against a sample portfolio.
 
 Everything in the JD is wired end-to-end and deployed.
 

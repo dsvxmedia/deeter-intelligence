@@ -90,7 +90,7 @@ export interface RAGSource {
 
 export interface EntityNode {
   id: string;
-  type: "ticker" | "executive" | "event" | "sector";
+  type: "ticker" | "executive" | "event" | "sector" | "supplier";
   label: string;
   tickers?: string[];
 }
