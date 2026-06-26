@@ -25,6 +25,26 @@ const SENTIMENT_COLORS = {
   neutral: "oklch(0.78 0.18 85)",
 };
 
+function ArticleSkeleton() {
+  return (
+    <div className="px-3 py-2.5 border-b border-border/50 animate-pulse">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 space-y-1.5">
+          <div className="h-2.5 rounded bg-secondary w-4/5" />
+          <div className="h-2 rounded bg-secondary w-3/5" />
+        </div>
+        <div className="w-5 h-5 rounded bg-secondary flex-shrink-0" />
+      </div>
+      <div className="flex items-center gap-2 mt-2">
+        <div className="h-2 rounded bg-secondary w-10" />
+        <div className="h-2 rounded bg-secondary w-8" />
+        <div className="h-3.5 rounded bg-secondary w-9" />
+        <div className="h-3.5 rounded bg-secondary w-9" />
+      </div>
+    </div>
+  );
+}
+
 function ArticleCard({ article }: { article: ScoredArticle }) {
   const tierClass =
     article.relevance >= 8
@@ -288,13 +308,17 @@ export function NewsFeed({ tickers, onHighSignal }: Props) {
       )}
 
       <ScrollArea className="flex-1">
-        {filtered.length === 0 ? (
+        {loading && articles.length === 0 ? (
+          <div>
+            {Array.from({ length: 6 }).map((_, i) => <ArticleSkeleton key={i} />)}
+          </div>
+        ) : filtered.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex items-center justify-center h-32 text-[11px] text-muted-foreground"
           >
-            {loading ? "Fetching signals…" : "No articles above threshold"}
+            No articles above threshold
           </motion.div>
         ) : (
           <AnimatePresence mode="popLayout" initial={false}>
