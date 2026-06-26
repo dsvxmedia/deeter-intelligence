@@ -17,6 +17,7 @@ export async function searchCIK(ticker: string): Promise<string | null> {
 export async function getFilingsByCIK(cik: string): Promise<Filing[]> {
   const paddedCIK = cik.padStart(10, "0");
   const res = await fetch(`${SUBMISSIONS}/CIK${paddedCIK}.json`, {
+    headers: { "User-Agent": "deeter-intelligence dsvxmedia@gmail.com" },
     next: { revalidate: 3600 },
   });
   if (!res.ok) throw new Error(`EDGAR error ${res.status}`);
@@ -51,15 +52,17 @@ export async function getFilingsByCIK(cik: string): Promise<Filing[]> {
 }
 
 export async function getFilingsByTicker(ticker: string): Promise<Filing[]> {
-  const cikRes = await fetch(
-    `https://efts.sec.gov/LATEST/search-index?q=%22${ticker}%22&forms=10-K,10-Q,8-K&hits.hits.total=1`,
-    { next: { revalidate: 3600 } }
-  );
-  if (!cikRes.ok) throw new Error("EDGAR search failed");
-  const cikData = await cikRes.json();
+  const res = await fetch("https://www.sec.gov/files/company_tickers.json", {
+    headers: { "User-Agent": "deeter-intelligence dsvxmedia@gmail.com" },
+    next: { revalidate: 86400 },
+  });
+  if (!res.ok) throw new Error("EDGAR search failed");
+  const data = await res.json();
 
-  const entityId = cikData?.hits?.hits?.[0]?._source?.entity_id;
-  if (!entityId) throw new Error(`No CIK found for ${ticker}`);
+  const entry = Object.values(data as Record<string, { cik_str: number; ticker: string; title: string }>)
+    .find((e) => e.ticker === ticker.toUpperCase());
 
-  return getFilingsByCIK(entityId);
+  if (!entry) throw new Error(`No CIK found for ${ticker}`);
+
+  return getFilingsByCIK(String(entry.cik_str));
 }
