@@ -1,7 +1,5 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import Link from "next/link";
 import { ArrowLeft, BarChart2 } from "lucide-react";
 import { FilingAnalyzer } from "@/components/FilingAnalyzer";
