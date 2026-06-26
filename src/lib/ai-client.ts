@@ -3,6 +3,8 @@ import { openai } from "@ai-sdk/openai";
 import { google } from "@ai-sdk/google";
 
 export const CLAUDE_MODEL = anthropic("claude-sonnet-4-6");
+// Haiku for high-volume scoring tasks — ~20x cheaper than Sonnet, sufficient for structured signals
+export const CLAUDE_HAIKU_MODEL = anthropic("claude-haiku-4-5-20251001");
 export const GPT_MODEL = openai("gpt-4o");
 export const GEMINI_MODEL = google("gemini-2.0-flash-exp");
 

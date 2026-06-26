@@ -3,31 +3,24 @@
 export type TTSProvider = "elevenlabs" | "browser";
 
 export async function speak(text: string): Promise<void> {
-  const key = (window as Window & { __ELEVENLABS_KEY__?: string }).__ELEVENLABS_KEY__;
-
-  if (key) {
-    try {
-      await elevenLabsSpeak(text, key);
-      return;
-    } catch {}
+  try {
+    const res = await fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (!res.ok) throw new Error("TTS API failed");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    await audio.play();
+    audio.onended = () => URL.revokeObjectURL(url);
+    return;
+  } catch {
+    // fall through to browser TTS
   }
 
   await browserSpeak(text);
-}
-
-async function elevenLabsSpeak(text: string, apiKey: string): Promise<void> {
-  const voiceId = "21m00Tcm4TlvDq8ikWAM";
-  const res = await fetch(`/api/tts`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, voiceId }),
-  });
-  if (!res.ok) throw new Error("ElevenLabs TTS failed");
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  const audio = new Audio(url);
-  await audio.play();
-  audio.onended = () => URL.revokeObjectURL(url);
 }
 
 function browserSpeak(text: string): Promise<void> {
@@ -37,21 +30,33 @@ function browserSpeak(text: string): Promise<void> {
       return;
     }
 
-    window.speechSynthesis.cancel();
+    const synth = window.speechSynthesis;
+    // Chrome bug: synth can get stuck in paused state; resume() unsticks it
+    synth.resume();
+
     const utt = new SpeechSynthesisUtterance(text);
-
-    const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(
-      (v) => v.lang === "en-US" && (v.name.includes("Google") || v.name.includes("Samantha"))
-    );
-    if (preferred) utt.voice = preferred;
-
-    utt.rate = 1.05;
-    utt.pitch = 1.0;
+    utt.rate = 1.0;
+    utt.pitch = 0.95;
     utt.volume = 1.0;
     utt.onend = () => resolve();
     utt.onerror = (e) => reject(e);
-    window.speechSynthesis.speak(utt);
+
+    // Set preferred voice if voices are already loaded — but never wait for
+    // voiceschanged because that fires async and breaks Chrome's user activation.
+    const voices = synth.getVoices();
+    const preferred = voices.find(
+      (v) => v.lang.startsWith("en") && (
+        v.name.includes("Google") ||
+        v.name.includes("Samantha") ||
+        v.name.includes("Daniel")
+      )
+    );
+    if (preferred) utt.voice = preferred;
+
+    // speak() MUST run synchronously inside the user gesture tick.
+    // Calling it from voiceschanged (async) loses user activation and Chrome
+    // silently drops the utterance. Default system voice is fine as fallback.
+    synth.speak(utt);
   });
 }
 

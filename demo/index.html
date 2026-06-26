@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Deeter Intelligence — Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+#arch {
+  background: oklch(0.07 0 0);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  color: oklch(0.88 0.01 200);
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+}
+
+/* Subtle scanlines */
+#arch::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    oklch(0 0 0 / 0.018) 3px,
+    oklch(0 0 0 / 0.018) 4px
+  );
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* ===== LAYOUT ===== */
+.layout {
+  position: absolute;
+  inset: 0;
+  padding: 52px 72px 44px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== HEADER ===== */
+.header {
+  flex-shrink: 0;
+  margin-bottom: 26px;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 8px;
+}
+
+.main-title {
+  font-size: 52px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: oklch(0.92 0.005 200);
+  line-height: 1;
+}
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: oklch(0.60 0.17 142);
+  border: 1px solid oklch(0.60 0.17 142 / 0.32);
+  background: oklch(0.60 0.17 142 / 0.07);
+  padding: 5px 12px 5px 9px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: oklch(0.60 0.17 142);
+  flex-shrink: 0;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: oklch(0.45 0.01 200);
+  letter-spacing: 0.10em;
+}
+
+/* ===== MAIN GRID ===== */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.28fr 1fr;
+  gap: 40px;
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 18px;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.section-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: oklch(0.38 0.01 200);
+  padding-bottom: 10px;
+  border-bottom: 1px solid oklch(1 0 0 / 8%);
+  flex-shrink: 0;
+}
+
+/* ===== DATA COLUMN ===== */
+.source-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.source-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  background: oklch(0.55 0.12 220 / 0.08);
+  border: 1px solid oklch(0.55 0.12 220 / 0.26);
+  color: oklch(0.62 0.12 220);
+  flex-shrink: 0;
+  min-width: 112px;
+  justify-content: center;
+}
+
+.source-detail {
+  font-size: 10px;
+  color: oklch(0.36 0.01 200);
+}
+
+.python-note {
+  font-size: 10px;
+  color: oklch(0.34 0.01 200);
+  padding: 9px 14px;
+  border: 1px solid oklch(1 0 0 / 7%);
+  border-radius: 3px;
+  background: oklch(0.095 0 0);
+  margin-top: 2px;
+  line-height: 1.7;
+}
+
+/* ===== AI COLUMN ===== */
+.fast-path-box {
+  background: oklch(0.60 0.17 142 / 0.05);
+  border: 1px solid oklch(0.60 0.17 142 / 0.18);
+  border-radius: 4px;
+  padding: 14px 16px;
+}
+
+.fast-path-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: oklch(0.60 0.17 142);
+  margin-bottom: 5px;
+}
+
+.fast-path-detail {
+  font-size: 10px;
+  color: oklch(0.42 0.01 200);
+  line-height: 1.7;
+}
+
+.council-label {
+  font-size: 10px;
+  color: oklch(0.38 0.01 200);
+  text-align: center;
+  letter-spacing: 0.06em;
+  padding: 3px 0;
+}
+
+.council-arrow {
+  font-size: 11px;
+  color: oklch(0.28 0.01 200);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.council-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.council-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  background: oklch(0.55 0.15 280 / 0.08);
+  border: 1px solid oklch(0.55 0.15 280 / 0.26);
+  color: oklch(0.62 0.12 280);
+}
+
+.chairman-box {
+  background: oklch(0.55 0.15 280 / 0.05);
+  border: 1px solid oklch(0.55 0.15 280 / 0.18);
+  border-radius: 4px;
+  padding: 12px 16px;
+  text-align: center;
+}
+
+.chairman-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: oklch(0.62 0.12 280);
+  margin-bottom: 4px;
+}
+
+.chairman-detail {
+  font-size: 10px;
+  color: oklch(0.40 0.01 200);
+}
+
+/* ===== INTERFACE COLUMN ===== */
+.interface-card {
+  padding: 12px 14px;
+  border-radius: 3px;
+  background: oklch(0.78 0.18 85 / 0.05);
+  border: 1px solid oklch(0.78 0.18 85 / 0.18);
+}
+
+.interface-card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: oklch(0.78 0.18 85);
+  margin-bottom: 4px;
+}
+
+.interface-card-detail {
+  font-size: 10px;
+  color: oklch(0.40 0.01 200);
+  line-height: 1.6;
+}
+
+/* ===== ENTITY ROW ===== */
+.entity-row {
+  flex-shrink: 0;
+  padding-top: 14px;
+  border-top: 1px solid oklch(1 0 0 / 7%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.entity-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: oklch(0.32 0.01 200);
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.entity-edge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
+.ticker-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  background: oklch(0.60 0.17 142 / 0.10);
+  border: 1px solid oklch(0.60 0.17 142 / 0.30);
+  color: oklch(0.60 0.17 142);
+}
+
+.entity-arrow {
+  font-size: 10px;
+  color: oklch(0.26 0.01 200);
+}
+
+.entity-node {
+  font-size: 11px;
+  color: oklch(0.48 0.01 200);
+}
+
+.entity-rel {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.entity-sub {
+  font-size: 10px;
+  color: oklch(0.60 0.17 142 / 0.6);
+  letter-spacing: 0.04em;
+}
+
+.entity-sep {
+  width: 1px;
+  height: 14px;
+  background: oklch(1 0 0 / 7%);
+  flex-shrink: 0;
+}
+
+.entity-stats {
+  margin-left: auto;
+  font-size: 10px;
+  color: oklch(0.28 0.01 200);
+  flex-shrink: 0;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 12px;
+  color: oklch(0.35 0.01 200);
+  letter-spacing: 0.07em;
+}
+
+.footer-url {
+  color: oklch(0.60 0.17 142);
+  font-weight: 600;
+}
+
+.footer-sep {
+  margin: 0 14px;
+  opacity: 0.3;
+}
+</style>
+</head>
+<body>
+
+<div id="arch" data-composition-id="arch" data-start="0" data-duration="34" data-width="1920" data-height="1080">
+
+  <div class="layout">
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="title-row">
+        <span class="main-title" id="main-title">DEETER INTELLIGENCE</span>
+        <span class="live-badge" id="live-badge">
+          <span class="live-dot" id="live-dot"></span>
+          LIVE
+        </span>
+      </div>
+      <div class="subtitle" id="subtitle">Trading Desk AI Co-Pilot &nbsp;·&nbsp; $500M Desk &nbsp;·&nbsp; Iron Man Suit</div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="main-grid">
+
+      <!-- DATA INGESTION -->
+      <div class="col">
+        <div class="section-label" id="label-data">Data Ingestion</div>
+
+        <div class="source-row" id="src-news">
+          <div class="source-chip">NewsAPI</div>
+          <div class="source-detail">REST · 90s refresh</div>
+        </div>
+
+        <div class="source-row" id="src-finnhub">
+          <div class="source-chip">Finnhub WS</div>
+          <div class="source-detail">live price ticks</div>
+        </div>
+
+        <div class="source-row" id="src-edgar">
+          <div class="source-chip">SEC EDGAR</div>
+          <div class="source-detail">10-K · 10-Q · 8-K</div>
+        </div>
+
+        <div class="python-note" id="python-note">
+          + Python layer<br>normalize · dedup · batch score
+        </div>
+      </div>
+
+      <!-- AI SCORING ENGINE -->
+      <div class="col">
+        <div class="section-label" id="label-ai">AI Scoring Engine</div>
+
+        <div class="fast-path-box" id="fast-path">
+          <div class="fast-path-title">Claude claude-sonnet-4-6 — Fast Path</div>
+          <div class="fast-path-detail">
+            relevance 1-10 · sentiment · entities · summary<br>
+            ~400ms average latency
+          </div>
+        </div>
+
+        <div class="council-label" id="council-label">borderline score 5-7 → LLM Council</div>
+        <div class="council-arrow" id="council-arrow">↓</div>
+
+        <div class="council-row" id="council-row">
+          <div class="council-chip">Claude</div>
+          <div class="council-chip">GPT-4o</div>
+          <div class="council-chip">Gemini</div>
+        </div>
+        <div class="council-arrow" id="council-arrow2">↓</div>
+
+        <div class="chairman-box" id="chairman-box">
+          <div class="chairman-title">Chairman Synthesis</div>
+          <div class="chairman-detail">final score · confidence: high / medium / low</div>
+        </div>
+      </div>
+
+      <!-- TRADER INTERFACE -->
+      <div class="col">
+        <div class="section-label" id="label-interface">Trader Interface</div>
+
+        <div class="interface-card" id="card-news">
+          <div class="interface-card-title">News Feed</div>
+          <div class="interface-card-detail">scored · filtered · threshold slider</div>
+        </div>
+
+        <div class="interface-card" id="card-chat">
+          <div class="interface-card-title">Intelligence Desk</div>
+          <div class="interface-card-detail">RAG chat · 13 corpus docs · source citations</div>
+        </div>
+
+        <div class="interface-card" id="card-jarvis">
+          <div class="interface-card-title">JARVIS</div>
+          <div class="interface-card-detail">push-to-talk · proactive alerts ≥9</div>
+        </div>
+      </div>
+
+    </div><!-- end main-grid -->
+
+    <!-- ENTITY GRAPH ROW -->
+    <div class="entity-row" id="entity-row">
+      <div class="entity-label">Entity Graph</div>
+
+      <div class="entity-edge" id="edge-1">
+        <span class="ticker-chip">NVDA</span>
+        <span class="entity-arrow">←</span>
+        <span class="entity-node">Blackwell</span>
+        <span class="entity-rel" style="color:oklch(0.55 0.12 220 / 0.8)">product</span>
+      </div>
+
+      <div class="entity-sep" id="esep-1"></div>
+
+      <div class="entity-edge" id="edge-2">
+        <span class="ticker-chip">NVDA</span>
+        <span class="entity-arrow">→</span>
+        <span class="entity-node">AI Infrastructure</span>
+        <span class="entity-sub">MSFT · GOOGL · AMZN</span>
+      </div>
+
+      <div class="entity-sep" id="esep-2"></div>
+
+      <div class="entity-edge" id="edge-3">
+        <span class="ticker-chip">AAPL</span>
+        <span class="entity-arrow">←</span>
+        <span class="entity-node">Tim Cook</span>
+        <span class="entity-rel" style="color:oklch(0.78 0.18 85 / 0.75)">CEO</span>
+      </div>
+
+      <div class="entity-sep" id="esep-3"></div>
+
+      <div class="entity-edge" id="edge-4">
+        <span class="ticker-chip">JPM</span>
+        <span class="entity-arrow">←</span>
+        <span class="entity-node">Fed Rate Decision</span>
+        <span class="entity-rel" style="color:oklch(0.58 0.22 25 / 0.8)">affects</span>
+      </div>
+
+      <div class="entity-stats" id="entity-stats">20 nodes · 17 edges · indirect traversal</div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer" id="footer">
+      <span class="footer-url">deeter-intelligence.vercel.app</span>
+      <span class="footer-sep">·</span>
+      <span>github.com/dsvxmedia/deeter-intelligence</span>
+      <span class="footer-sep">·</span>
+      <span>D. Jackson · Head of Applied AI</span>
+    </div>
+
+  </div><!-- end layout -->
+
+</div><!-- end composition -->
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script>
+window.__timelines = window.__timelines || {};
+
+const tl = gsap.timeline({ paused: true });
+
+// ===== PRE-HIDE ALL ANIMATED ELEMENTS AT t=0 =====
+// Inside timeline so seeks correctly replay tween state
+tl.set([
+  "#main-title", "#live-badge", "#subtitle",
+  "#label-data", "#src-news", "#src-finnhub", "#src-edgar", "#python-note",
+  "#label-ai", "#fast-path", "#council-label", "#council-arrow", "#council-row",
+  "#council-arrow2", "#chairman-box",
+  "#label-interface", "#card-news", "#card-chat", "#card-jarvis",
+  "#entity-row", "#edge-1", "#edge-2", "#edge-3", "#edge-4",
+  "#esep-1", "#esep-2", "#esep-3", "#entity-stats",
+  "#footer"
+], { opacity: 0 }, 0);
+
+// ===== TITLE SEQUENCE (0.3 — 2.2s) =====
+tl.fromTo("#main-title",
+  { opacity: 0, y: 44 },
+  { opacity: 1, y: 0, duration: 1.0, ease: "power3.out" }, 0.3);
+
+tl.fromTo("#live-badge",
+  { opacity: 0, scale: 0.82 },
+  { opacity: 1, scale: 1, duration: 0.55, ease: "expo.out" }, 1.1);
+
+tl.fromTo("#subtitle",
+  { opacity: 0, y: 14 },
+  { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, 1.5);
+
+// LIVE dot pulse — available 34 - 1.7 = 32.3s, half-cycle 0.9s
+// repeats: ceil(32.3 / 0.9) - 1 = ceil(35.9) - 1 = 35
+tl.to("#live-dot", {
+  opacity: 0.25,
+  duration: 0.9,
+  ease: "sine.inOut",
+  yoyo: true,
+  repeat: 35
+}, 1.7);
+
+// ===== DATA INGESTION (3.0 — 7.0s) =====
+tl.fromTo("#label-data",
+  { opacity: 0 },
+  { opacity: 1, duration: 0.45, ease: "power2.out" }, 3.0);
+
+tl.fromTo("#src-news",
+  { opacity: 0, x: -32 },
+  { opacity: 1, x: 0, duration: 0.55, ease: "expo.out" }, 3.4);
+
+tl.fromTo("#src-finnhub",
+  { opacity: 0, x: -32 },
+  { opacity: 1, x: 0, duration: 0.55, ease: "expo.out" }, 3.75);
+
+tl.fromTo("#src-edgar",
+  { opacity: 0, x: -32 },
+  { opacity: 1, x: 0, duration: 0.55, ease: "expo.out" }, 4.1);
+
+tl.fromTo("#python-note",
+  { opacity: 0, y: 12 },
+  { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 4.7);
+
+// ===== AI SCORING ENGINE (7.0 — 13.5s) =====
+tl.fromTo("#label-ai",
+  { opacity: 0 },
+  { opacity: 1, duration: 0.45, ease: "power2.out" }, 7.0);
+
+tl.fromTo("#fast-path",
+  { opacity: 0, y: 26 },
+  { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 7.3);
+
+tl.fromTo("#council-label",
+  { opacity: 0 },
+  { opacity: 1, duration: 0.5, ease: "power2.out" }, 8.4);
+
+tl.fromTo("#council-arrow",
+  { opacity: 0, y: -6 },
+  { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 8.85);
+
+tl.fromTo("#council-row",
+  { opacity: 0, scale: 0.87 },
+  { opacity: 1, scale: 1, duration: 0.6, ease: "expo.out" }, 9.3);
+
+tl.fromTo("#council-arrow2",
+  { opacity: 0, y: -6 },
+  { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 9.85);
+
+tl.fromTo("#chairman-box",
+  { opacity: 0, y: 20 },
+  { opacity: 1, y: 0, duration: 0.65, ease: "power3.out" }, 10.3);
+
+// ===== TRADER INTERFACE (12.5 — 16.5s) =====
+tl.fromTo("#label-interface",
+  { opacity: 0 },
+  { opacity: 1, duration: 0.45, ease: "power2.out" }, 12.5);
+
+tl.fromTo("#card-news",
+  { opacity: 0, x: 32 },
+  { opacity: 1, x: 0, duration: 0.55, ease: "expo.out" }, 12.85);
+
+tl.fromTo("#card-chat",
+  { opacity: 0, x: 32 },
+  { opacity: 1, x: 0, duration: 0.55, ease: "expo.out" }, 13.25);
+
+tl.fromTo("#card-jarvis",
+  { opacity: 0, x: 32 },
+  { opacity: 1, x: 0, duration: 0.55, ease: "expo.out" }, 13.65);
+
+// ===== ENTITY GRAPH (16.5 — 20.5s) =====
+tl.fromTo("#entity-row",
+  { opacity: 0 },
+  { opacity: 1, duration: 0.4 }, 16.5);
+
+tl.fromTo("#edge-1",
+  { opacity: 0, y: 10 },
+  { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 16.8);
+
+tl.fromTo("#esep-1",
+  { opacity: 0 },
+  { opacity: 1, duration: 0.3 }, 17.1);
+
+tl.fromTo("#edge-2",
+  { opacity: 0, y: 10 },
+  { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 17.2);
+
+tl.fromTo("#esep-2",
+  { opacity: 0 },
+  { opacity: 1, duration: 0.3 }, 17.55);
+
+tl.fromTo("#edge-3",
+  { opacity: 0, y: 10 },
+  { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 17.65);
+
+tl.fromTo("#esep-3",
+  { opacity: 0 },
+  { opacity: 1, duration: 0.3 }, 17.98);
+
+tl.fromTo("#edge-4",
+  { opacity: 0, y: 10 },
+  { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 18.1);
+
+tl.fromTo("#entity-stats",
+  { opacity: 0 },
+  { opacity: 1, duration: 0.55, ease: "power1.out" }, 18.7);
+
+// ===== FOOTER (20.0s) =====
+tl.fromTo("#footer",
+  { opacity: 0, y: 10 },
+  { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 20.0);
+
+// Full diagram holds 20-32s
+
+// ===== FINAL SCENE EXIT (32-34s) — final scene only =====
+tl.to([
+  "#main-title", "#live-badge", "#subtitle",
+  "#label-data", "#src-news", "#src-finnhub", "#src-edgar", "#python-note",
+  "#label-ai", "#fast-path", "#council-label", "#council-arrow", "#council-row",
+  "#council-arrow2", "#chairman-box",
+  "#label-interface", "#card-news", "#card-chat", "#card-jarvis",
+  "#entity-row", "#entity-stats",
+  "#footer"
+], {
+  opacity: 0,
+  duration: 2.0,
+  ease: "power2.in",
+  stagger: 0.04
+}, 32.0);
+
+window.__timelines["arch"] = tl;
+
+// Auto-play in browser preview (hyperframes render engine sets window.__hyperframes before page load)
+if (!window.__hyperframes) {
+  tl.play();
+}
+</script>
+
+</body>
+</html>

@@ -21,6 +21,7 @@ export function JarvisVoice({ onVoiceCommand, pendingAlert }: Props) {
   const [lastAlert, setLastAlert] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const prevAlertId = useRef<string | null>(null);
+  const transcriptRef = useRef("");
 
   useEffect(() => {
     if (
@@ -62,11 +63,13 @@ export function JarvisVoice({ onVoiceCommand, pendingAlert }: Props) {
       const interim = Array.from(evt.results)
         .map((r: SpeechRecognitionResult) => r[0].transcript)
         .join("");
+      transcriptRef.current = interim;
       setTranscript(interim);
     };
 
     recognition.onend = () => {
-      const final = transcript || "";
+      const final = transcriptRef.current;
+      transcriptRef.current = "";
       if (final.trim()) {
         setState("processing");
         onVoiceCommand?.(final.trim());
@@ -79,7 +82,7 @@ export function JarvisVoice({ onVoiceCommand, pendingAlert }: Props) {
     recognition.onerror = () => setState("idle");
 
     recognition.start();
-  }, [transcript, onVoiceCommand]);
+  }, [onVoiceCommand]);
 
   const stopListening = useCallback(() => {
     recognitionRef.current?.stop();

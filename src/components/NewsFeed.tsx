@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ExternalLink, RefreshCw, Sliders } from "lucide-react";
+import { ExternalLink, RefreshCw, Sliders, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,14 @@ import { ExposureAlert } from "@/components/ExposureAlert";
 import { RegimeIndicator } from "@/components/RegimeIndicator";
 import { SignalBar } from "@/components/SignalBar";
 import type { ScoredArticle, ExposureAlert as ExposureAlertType, RegimeScore, SignalBarData } from "@/types";
+
+// Cost controls:
+// - 8 articles per fetch (was 15)
+// - 5-minute auto-refresh (was 90s)
+// - Article cache: never re-score an already-scored article
+// - Council is manual-only (button on article), not automatic
+const MAX_ARTICLES = 8;
+const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
 interface Props {
   tickers: string[];
@@ -45,13 +53,30 @@ function ArticleSkeleton() {
   );
 }
 
-function ArticleCard({ article }: { article: ScoredArticle }) {
+function ArticleCard({
+  article,
+  onRequestCouncil,
+}: {
+  article: ScoredArticle;
+  onRequestCouncil?: () => void;
+}) {
+  const [councilLoading, setCouncilLoading] = useState(false);
   const tierClass =
     article.relevance >= 8
       ? "signal-high"
       : article.relevance >= 5
       ? "signal-mid"
       : "signal-low";
+
+  const handleCouncil = async () => {
+    if (!onRequestCouncil || councilLoading) return;
+    setCouncilLoading(true);
+    try {
+      await onRequestCouncil();
+    } finally {
+      setCouncilLoading(false);
+    }
+  };
 
   return (
     <motion.div
@@ -106,15 +131,27 @@ function ArticleCard({ article }: { article: ScoredArticle }) {
             {e}
           </Badge>
         ))}
-        {article.councilConfidence && (
+        {article.councilConfidence ? (
           <Badge
             variant="outline"
             className="text-[9px] py-0 px-1 h-4"
             style={{ borderColor: "oklch(0.55 0.15 260 / 0.4)", color: "oklch(0.65 0.12 260)" }}
           >
-            council
+            council · {article.councilConfidence}
           </Badge>
-        )}
+        ) : onRequestCouncil ? (
+          <Tooltip>
+            <TooltipTrigger
+              onClick={handleCouncil}
+              disabled={councilLoading}
+              className="flex items-center gap-0.5 text-[9px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
+            >
+              <Users size={9} className={councilLoading ? "animate-pulse" : ""} />
+              {councilLoading ? "…" : "council"}
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Run 3-model consensus on this signal</TooltipContent>
+          </Tooltip>
+        ) : null}
       </div>
     </motion.div>
   );
@@ -128,7 +165,8 @@ export function NewsFeed({ tickers, onHighSignal }: Props) {
   const [regime, setRegime] = useState<RegimeScore | null>(null);
   const [signalBars, setSignalBars] = useState<SignalBarData[]>([]);
   const [showFilter, setShowFilter] = useState(false);
-  const scoringQueue = useRef<ScoredArticle[]>([]);
+  // Persistent cache: articleId → scored result. Survives re-renders, cleared on unmount.
+  const scoreCache = useRef<Map<string, ScoredArticle>>(new Map());
 
   const computeSignalBars = useCallback((scored: ScoredArticle[]) => {
     const byTicker = new Map<string, ScoredArticle[]>();
@@ -156,13 +194,11 @@ export function NewsFeed({ tickers, onHighSignal }: Props) {
 
   const scoreArticle = useCallback(
     async (article: import("@/types").Article): Promise<ScoredArticle> => {
-      const useCouncil = scoringQueue.current.length > 0
-        ? scoringQueue.current[scoringQueue.current.length - 1].relevance >= 5 &&
-          scoringQueue.current[scoringQueue.current.length - 1].relevance <= 7
-        : false;
+      // Return cached result — never call the API twice for the same article
+      const cached = scoreCache.current.get(article.id);
+      if (cached) return cached;
 
-      const endpoint = useCouncil ? "/api/signal-council" : "/api/signal";
-      const res = await fetch(endpoint, {
+      const res = await fetch("/api/signal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ article, tickers }),
@@ -170,21 +206,38 @@ export function NewsFeed({ tickers, onHighSignal }: Props) {
 
       if (!res.ok) throw new Error("Scoring failed");
       const data = await res.json();
+      const result = data.signal as ScoredArticle;
 
-      if (useCouncil && data.council) {
-        return {
-          ...article,
-          relevance: data.council.finalRelevance,
-          sentiment: data.council.finalSentiment,
-          entities: [],
-          summary: data.council.synthesis,
-          councilScore: data.council.finalRelevance,
-          councilConfidence: data.council.confidence,
-          scoredAt: new Date().toISOString(),
-        } as ScoredArticle;
-      }
+      scoreCache.current.set(article.id, result);
+      return result;
+    },
+    [tickers]
+  );
 
-      return data.signal as ScoredArticle;
+  const requestCouncil = useCallback(
+    async (article: ScoredArticle) => {
+      const res = await fetch("/api/signal-council", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ article, tickers }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.council) return;
+
+      const upgraded: ScoredArticle = {
+        ...article,
+        relevance: data.council.finalRelevance,
+        sentiment: data.council.finalSentiment,
+        summary: data.council.synthesis,
+        councilScore: data.council.finalRelevance,
+        councilConfidence: data.council.confidence,
+      };
+
+      scoreCache.current.set(article.id, upgraded);
+      setArticles((prev) =>
+        prev.map((a) => (a.id === article.id ? upgraded : a))
+      );
     },
     [tickers]
   );
@@ -202,15 +255,13 @@ export function NewsFeed({ tickers, onHighSignal }: Props) {
       const { articles: raw } = await res.json();
 
       const scored = await Promise.allSettled(
-        raw.slice(0, 15).map((a: import("@/types").Article) => scoreArticle(a))
+        raw.slice(0, MAX_ARTICLES).map((a: import("@/types").Article) => scoreArticle(a))
       );
 
       const successful = scored
         .filter((r): r is PromiseFulfilledResult<ScoredArticle> => r.status === "fulfilled")
         .map((r) => r.value)
         .sort((a, b) => b.relevance - a.relevance);
-
-      scoringQueue.current = successful;
 
       setArticles(successful);
       setRegime(computeRegime(successful));
@@ -236,13 +287,17 @@ export function NewsFeed({ tickers, onHighSignal }: Props) {
     }
   }, [tickers, scoreArticle, computeSignalBars, onHighSignal]);
 
+  const fetchAndScoreRef = useRef(fetchAndScore);
+  useEffect(() => { fetchAndScoreRef.current = fetchAndScore; }, [fetchAndScore]);
+
+  const tickersKey = tickers.join(",");
   useEffect(() => {
-    if (tickers.length > 0) {
-      fetchAndScore();
-      const interval = setInterval(fetchAndScore, 90_000);
-      return () => clearInterval(interval);
-    }
-  }, [fetchAndScore, tickers.length]);
+    if (!tickersKey) return;
+    fetchAndScoreRef.current();
+    const interval = setInterval(() => fetchAndScoreRef.current(), REFRESH_INTERVAL_MS);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tickersKey]);
 
   const filtered = articles.filter((a) => a.relevance >= threshold);
 
@@ -310,7 +365,7 @@ export function NewsFeed({ tickers, onHighSignal }: Props) {
       <ScrollArea className="flex-1">
         {loading && articles.length === 0 ? (
           <div>
-            {Array.from({ length: 6 }).map((_, i) => <ArticleSkeleton key={i} />)}
+            {Array.from({ length: 5 }).map((_, i) => <ArticleSkeleton key={i} />)}
           </div>
         ) : filtered.length === 0 ? (
           <motion.div
@@ -322,7 +377,13 @@ export function NewsFeed({ tickers, onHighSignal }: Props) {
           </motion.div>
         ) : (
           <AnimatePresence mode="popLayout" initial={false}>
-            {filtered.map((a) => <ArticleCard key={a.id} article={a} />)}
+            {filtered.map((a) => (
+              <ArticleCard
+                key={a.id}
+                article={a}
+                onRequestCouncil={() => requestCouncil(a)}
+              />
+            ))}
           </AnimatePresence>
         )}
       </ScrollArea>
@@ -332,7 +393,7 @@ export function NewsFeed({ tickers, onHighSignal }: Props) {
           {filtered.length}/{articles.length} signals
         </span>
         <span className="text-[9px] text-muted-foreground font-mono">
-          refreshes every 90s
+          refreshes every 5m
         </span>
       </div>
     </div>

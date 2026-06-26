@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateText, Output } from "ai";
 import { z } from "zod";
-import { CLAUDE_MODEL, SYSTEM_PROMPT } from "@/lib/ai-client";
+import { CLAUDE_HAIKU_MODEL, SYSTEM_PROMPT } from "@/lib/ai-client";
 import { matchEntities } from "@/lib/entity-graph";
 import { addNewsToStore } from "@/lib/vector-store";
 import type { Article, ScoredArticle } from "@/types";
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const watchlistContext = `Portfolio tickers: ${tickers.join(", ")}`;
 
     const { output } = await generateText({
-      model: CLAUDE_MODEL,
+      model: CLAUDE_HAIKU_MODEL,
       system: SYSTEM_PROMPT,
       prompt: `Score this news article for a trading desk.\n${watchlistContext}\n\nArticle:\n${text}\n\nProvide: relevance (1-10 where 10=critical market-moving event), sentiment, entities mentioned (tickers/companies), and a 1-sentence summary.`,
       output: Output.object({ schema: SignalSchema }),

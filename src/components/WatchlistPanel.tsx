@@ -22,6 +22,8 @@ export function WatchlistPanel({ onWatchlistChange }: Props) {
   const [addInput, setAddInput] = useState("");
   const [flashMap, setFlashMap] = useState<Record<string, "up" | "down">>({});
   const prevPrices = useRef<Record<string, number>>({});
+  const pendingQuotes = useRef<Record<string, { quote: Quote; dir?: "up" | "down" }>>({});
+  const flushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const portfolio = getPortfolio();
@@ -37,22 +39,38 @@ export function WatchlistPanel({ onWatchlistChange }: Props) {
 
     const unsub = ws.onQuote((q) => {
       const prev = prevPrices.current[q.ticker];
-      const dir = prev ? (q.price > prev ? "up" : "down") : undefined;
+      const dir = prev !== undefined ? (q.price > prev ? "up" : "down") : undefined;
+      prevPrices.current[q.ticker] = q.price;
+      pendingQuotes.current[q.ticker] = { quote: q, dir };
 
-      setQuotes((prev) => ({ ...prev, [q.ticker]: q }));
+      if (!flushTimer.current) {
+        flushTimer.current = setTimeout(() => {
+          flushTimer.current = null;
+          const batch = pendingQuotes.current;
+          pendingQuotes.current = {};
 
-      if (dir) {
-        setFlashMap((m) => ({ ...m, [q.ticker]: dir }));
-        setTimeout(() => {
-          setFlashMap((m) => {
-            const next = { ...m };
-            delete next[q.ticker];
+          setQuotes((prev) => {
+            const next = { ...prev };
+            for (const [ticker, { quote }] of Object.entries(batch)) {
+              next[ticker] = quote;
+            }
             return next;
           });
-        }, 900);
-      }
 
-      prevPrices.current[q.ticker] = q.price;
+          for (const [ticker, { dir }] of Object.entries(batch)) {
+            if (dir) {
+              setFlashMap((m) => ({ ...m, [ticker]: dir }));
+              setTimeout(() => {
+                setFlashMap((m) => {
+                  const n = { ...m };
+                  delete n[ticker];
+                  return n;
+                });
+              }, 900);
+            }
+          }
+        }, 500);
+      }
     });
 
     return unsub;
@@ -158,13 +176,9 @@ export function WatchlistPanel({ onWatchlistChange }: Props) {
           </span>
           <AnimatePresence mode="wait">
             <motion.div
-              key={`${Math.round(unrealizedPnl)}-${pnlPositive}`}
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 4 }}
-              transition={{ duration: 0.18 }}
+              animate={{ color: pnlPositive ? "oklch(0.60 0.17 142)" : "oklch(0.58 0.22 25)" }}
+              transition={{ duration: 0.3 }}
               className="text-[10px] font-mono tabular-nums flex items-center gap-1"
-              style={{ color: pnlPositive ? "oklch(0.60 0.17 142)" : "oklch(0.58 0.22 25)" }}
             >
               {pnlPositive ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
               {pnlPositive ? "+" : ""}{formatCurrency(unrealizedPnl)} ({unrealizedPct >= 0 ? "+" : ""}{unrealizedPct.toFixed(1)}%)

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { speak } from "@/lib/tts";
 import Link from "next/link";
 import { BarChart2, BookOpen } from "lucide-react";
 import { WatchlistPanel } from "@/components/WatchlistPanel";
@@ -32,8 +33,20 @@ export default function Dashboard() {
     setTimeout(() => setVoiceInput(undefined), 100);
   }, []);
 
+  const greetingFired = useRef(false);
+  const handleFirstInteraction = () => {
+    if (greetingFired.current) return;
+    greetingFired.current = true;
+    const hour = new Date().getHours();
+    const t = hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening";
+    speak(`Good ${t}, sir. Systems online. Four positions loaded. I'll alert you on anything critical.`).catch(() => {});
+  };
+
   return (
-    <div className="flex flex-col h-screen bg-background overflow-hidden">
+    <div
+      className="flex flex-col h-screen bg-background overflow-hidden"
+      onPointerDown={handleFirstInteraction}
+    >
       {/* Top bar */}
       <header className="flex-shrink-0 h-9 border-b border-border flex items-center justify-between px-4">
         <div className="flex items-center gap-3">
