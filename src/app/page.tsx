@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { speak } from "@/lib/tts";
 import Link from "next/link";
-import { BarChart2, BookOpen, Network } from "lucide-react";
+import { BarChart2, BookOpen, Network, FileText } from "lucide-react";
 import { WatchlistPanel } from "@/components/WatchlistPanel";
 import { NewsFeed } from "@/components/NewsFeed";
 import { ChatDesk } from "@/components/ChatDesk";
@@ -88,6 +88,15 @@ export default function Dashboard() {
           >
             <Network size={11} />
             Architecture
+          </a>
+          <a
+            href="/build.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-[10px] font-mono text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <FileText size={11} />
+            Build Doc
           </a>
           <span className="text-[10px] font-mono text-muted-foreground">
             {clockTime}
