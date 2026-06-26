@@ -1,6 +1,6 @@
 # Deeter Intelligence
 
-**Live demo:** https://deeter-intelligence.vercel.app &nbsp;·&nbsp; **GitHub:** https://github.com/dsvxmedia/deeter-intelligence
+**Live demo:** https://deeter-intelligence.vercel.app &nbsp;·&nbsp; **Architecture:** https://deeter-intelligence.vercel.app/architecture.html &nbsp;·&nbsp; **GitHub:** https://github.com/dsvxmedia/deeter-intelligence
 
 ![Deeter Intelligence — Trading Desk AI Co-Pilot](demo/snapshots/frame-00-at-25.0s.png)
 
