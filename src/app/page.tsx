@@ -6,7 +6,7 @@ import { BarChart2, BookOpen } from "lucide-react";
 import { WatchlistPanel } from "@/components/WatchlistPanel";
 import { NewsFeed } from "@/components/NewsFeed";
 import { ChatDesk } from "@/components/ChatDesk";
-import { JarvisOrb } from "@/components/JarvisOrb";
+import { JarvisVoice } from "@/components/JarvisVoice";
 import type { ScoredArticle } from "@/types";
 
 export default function Dashboard() {
@@ -88,20 +88,26 @@ export default function Dashboard() {
           />
         </section>
 
-        {/* Right: Chat */}
+        {/* Right: Chat + JARVIS */}
         <aside className="overflow-hidden flex flex-col min-h-0 bg-card">
-          <ChatDesk
-            initialMessage={voiceInput}
-            onMessageSent={() => {}}
-          />
+          <div className="flex flex-col h-full">
+            {/* Chat takes ~70% */}
+            <div className="flex-1 min-h-0 border-b border-border overflow-hidden">
+              <ChatDesk
+                initialMessage={voiceInput}
+                onMessageSent={() => {}}
+              />
+            </div>
+            {/* JARVIS takes ~30% */}
+            <div className="h-44 flex-shrink-0 overflow-hidden">
+              <JarvisVoice
+                onVoiceCommand={handleVoiceCommand}
+                pendingAlert={pendingAlert}
+              />
+            </div>
+          </div>
         </aside>
       </main>
-
-      {/* JARVIS floating orb */}
-      <JarvisOrb
-        onVoiceCommand={handleVoiceCommand}
-        pendingAlert={pendingAlert}
-      />
     </div>
   );
 }
