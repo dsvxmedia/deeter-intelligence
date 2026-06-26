@@ -43,16 +43,20 @@ export default function Dashboard() {
               DEETER INTELLIGENCE
             </span>
           </div>
-          <span
-            className="text-[9px] font-mono px-1.5 py-0.5 rounded"
+          <div
+            className="flex items-center gap-1.5 text-[9px] font-mono px-1.5 py-0.5 rounded"
             style={{
-              background: "oklch(0.60 0.17 142 / 0.15)",
+              background: "oklch(0.60 0.17 142 / 0.12)",
               color: "oklch(0.60 0.17 142)",
-              border: "1px solid oklch(0.60 0.17 142 / 0.3)",
+              border: "1px solid oklch(0.60 0.17 142 / 0.25)",
             }}
           >
+            <span
+              className="live-dot w-1.5 h-1.5 rounded-full flex-shrink-0"
+              style={{ background: "oklch(0.60 0.17 142)" }}
+            />
             LIVE
-          </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -70,7 +74,7 @@ export default function Dashboard() {
       </header>
 
       {/* Main 3-column layout */}
-      <main className="flex-1 overflow-hidden grid grid-cols-[220px_1fr_300px] min-h-0">
+      <main className="flex-1 overflow-hidden grid grid-cols-[260px_1fr_310px] min-h-0">
         {/* Left: Watchlist */}
         <aside className="border-r border-border overflow-hidden flex flex-col min-h-0 bg-card">
           <WatchlistPanel onWatchlistChange={setWatchlistTickers} />

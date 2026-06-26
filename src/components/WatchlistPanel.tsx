@@ -72,8 +72,14 @@ export function WatchlistPanel({ onWatchlistChange }: Props) {
     Object.fromEntries(Object.entries(quotes).map(([t, q]) => [t, q.price]))
   );
 
+  const totalCost = portfolio.positions.reduce((sum, p) => sum + p.shares * p.avgCost, 0);
+  const unrealizedPnl = portfolio.totalValue - totalCost;
+  const unrealizedPct = totalCost > 0 ? (unrealizedPnl / totalCost) * 100 : 0;
+  const pnlPositive = unrealizedPnl >= 0;
+
   return (
     <div className="flex flex-col h-full">
+      {/* Header */}
       <div className="px-4 py-3 border-b border-border flex items-center justify-between">
         <span className="text-xs font-mono text-muted-foreground uppercase tracking-widest">
           Watchlist
@@ -83,6 +89,7 @@ export function WatchlistPanel({ onWatchlistChange }: Props) {
         </Badge>
       </div>
 
+      {/* Watchlist tickers */}
       <ScrollArea className="flex-1">
         <div className="p-2 space-y-0.5">
           {watchlist.map((item) => {
@@ -107,18 +114,18 @@ export function WatchlistPanel({ onWatchlistChange }: Props) {
                   </button>
                   <div className="min-w-0">
                     <div className="font-mono text-xs font-semibold">{item.ticker}</div>
-                    <div className="text-[10px] text-muted-foreground truncate max-w-[100px]">
+                    <div className="text-[10px] text-muted-foreground truncate max-w-[110px]">
                       {item.name}
                     </div>
                   </div>
                 </div>
 
                 <div className="text-right flex-shrink-0">
-                  <div className="font-mono text-xs">
+                  <div className="font-mono text-xs tabular-nums">
                     {q?.price ? `$${q.price.toFixed(2)}` : pos?.currentPrice ? `$${pos.currentPrice.toFixed(2)}` : "---"}
                   </div>
                   <div
-                    className={`font-mono text-[10px] flex items-center gap-0.5 justify-end ${
+                    className={`font-mono text-[10px] flex items-center gap-0.5 justify-end tabular-nums ${
                       pct > 0
                         ? "text-[oklch(0.60_0.17_142)]"
                         : pct < 0
@@ -142,6 +149,47 @@ export function WatchlistPanel({ onWatchlistChange }: Props) {
         </div>
       </ScrollArea>
 
+      {/* Portfolio P&L section */}
+      <div className="border-t border-border">
+        <div className="px-4 py-2 flex items-center justify-between">
+          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+            Portfolio
+          </span>
+          <div
+            className="text-[10px] font-mono tabular-nums flex items-center gap-1"
+            style={{ color: pnlPositive ? "oklch(0.60 0.17 142)" : "oklch(0.58 0.22 25)" }}
+          >
+            {pnlPositive ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
+            {pnlPositive ? "+" : ""}{formatCurrency(unrealizedPnl)} ({unrealizedPct >= 0 ? "+" : ""}{unrealizedPct.toFixed(1)}%)
+          </div>
+        </div>
+        <div className="px-2 pb-2 space-y-0.5 max-h-28 overflow-y-auto">
+          {portfolio.positions.map((p) => {
+            const positionValue = p.shares * (p.currentPrice ?? p.avgCost);
+            const positionPnl = positionValue - p.shares * p.avgCost;
+            const posPositive = positionPnl >= 0;
+            return (
+              <div key={p.ticker} className="flex items-center justify-between px-2 py-1 rounded hover:bg-secondary/50 transition-colors">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-mono text-[10px] font-semibold w-10 flex-shrink-0">{p.ticker}</span>
+                  <span className="text-[9px] text-muted-foreground tabular-nums">{p.shares.toLocaleString()} sh</span>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="font-mono text-[10px] tabular-nums">{formatCurrency(positionValue)}</div>
+                  <div
+                    className="font-mono text-[9px] tabular-nums"
+                    style={{ color: posPositive ? "oklch(0.60 0.17 142)" : "oklch(0.58 0.22 25)" }}
+                  >
+                    {posPositive ? "+" : ""}{formatCurrency(positionPnl)}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Add ticker */}
       <div className="p-3 border-t border-border">
         <div className="flex gap-1.5">
           <Input

@@ -12,6 +12,8 @@ interface Props {
 
 type JarvisState = "idle" | "listening" | "processing" | "speaking";
 
+const WAVE_HEIGHTS = [30, 55, 80, 60, 90, 45, 70, 85, 50, 75, 40, 65];
+
 export function JarvisVoice({ onVoiceCommand, pendingAlert }: Props) {
   const [state, setState] = useState<JarvisState>("idle");
   const [transcript, setTranscript] = useState("");
@@ -121,17 +123,19 @@ export function JarvisVoice({ onVoiceCommand, pendingAlert }: Props) {
       <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4">
         {/* JARVIS waveform */}
         <div className="flex items-end gap-0.5 h-8">
-          {Array.from({ length: 12 }).map((_, i) => (
+          {WAVE_HEIGHTS.map((h, i) => (
             <div
               key={i}
               className={`w-0.5 rounded-full origin-bottom ${isActive ? "wave-bar" : ""}`}
               style={{
-                height: isActive ? `${Math.random() * 100}%` : "20%",
+                height: isActive ? `${h}%` : "20%",
                 background: isActive
-                  ? "oklch(0.60 0.17 142)"
-                  : "oklch(0.30 0 0)",
+                  ? state === "speaking"
+                    ? "oklch(0.78 0.18 85)"
+                    : "oklch(0.60 0.17 142)"
+                  : "oklch(0.28 0 0)",
                 animationDelay: `${i * 0.05}s`,
-                transition: "background 0.3s",
+                transition: "background 0.3s, height 0.3s",
               }}
             />
           ))}

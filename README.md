@@ -51,10 +51,10 @@ Naive ticker matching misses that a TSMC supply constraint item is a direct risk
 
 | Layer | Tech |
 |---|---|
-| Framework | Next.js 16, App Router, Turbopack, `cacheComponents` PPR |
+| Framework | Next.js 16, App Router, Turbopack |
 | Language | TypeScript + Python |
 | UI | shadcn/ui v4 (Base UI), Tailwind v4, Framer Motion 12 |
-| AI | AI SDK v7, Vercel AI Gateway (`"anthropic/claude-sonnet-4.6"`) |
+| AI | AI SDK v7, direct providers (Anthropic / OpenAI / Google) |
 | Signals | LLM Council: Claude + GPT-5.4 + Gemini parallel vote |
 | Knowledge | TF-IDF cosine similarity RAG, entity knowledge graph |
 | Data | NewsAPI, Finnhub WebSocket (live quotes), SEC EDGAR (free) |
