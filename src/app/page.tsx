@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { BarChart2, BookOpen } from "lucide-react";
 import { WatchlistPanel } from "@/components/WatchlistPanel";
@@ -11,6 +11,15 @@ import type { ScoredArticle } from "@/types";
 
 export default function Dashboard() {
   const [watchlistTickers, setWatchlistTickers] = useState<string[]>([]);
+  const [clockTime, setClockTime] = useState("");
+
+  useEffect(() => {
+    const fmt = () =>
+      new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZoneName: "short" });
+    setClockTime(fmt());
+    const id = setInterval(() => setClockTime(fmt()), 60_000);
+    return () => clearInterval(id);
+  }, []);
   const [pendingAlert, setPendingAlert] = useState<ScoredArticle | null>(null);
   const [voiceInput, setVoiceInput] = useState<string | undefined>();
 
@@ -55,11 +64,7 @@ export default function Dashboard() {
             Research
           </Link>
           <span className="text-[10px] font-mono text-muted-foreground">
-            {new Date().toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-              timeZoneName: "short",
-            })}
+            {clockTime}
           </span>
         </div>
       </header>
