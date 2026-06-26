@@ -1,0 +1,103 @@
+export const SEED_CORPUS = [
+  {
+    id: "aapl-q1-2025",
+    source: "AAPL Q1 2025 Earnings Call",
+    type: "earnings" as const,
+    ticker: "AAPL",
+    date: "2025-02-01",
+    content: `Apple CEO Tim Cook: Services revenue hit an all-time record of $26.3 billion, up 14% year-over-year. We now have over 1 billion paid subscriptions across our services portfolio. iPhone revenue of $69.1 billion exceeded expectations driven by iPhone 16 Pro demand and strong performance in emerging markets, particularly India where we grew revenue by over 20%. Gross margin expanded 130 basis points to 46.9% reflecting favorable product mix and services scale. We repurchased $30 billion of our own stock in the quarter. On AI: Apple Intelligence features are now available in 10 languages and driving meaningful upgrade cycles. Our on-device processing approach gives us a structural advantage on privacy that enterprise customers specifically cite. CFO Luca Maestri: We're guiding Q2 revenue to $94-96 billion, representing 5-7% growth, with gross margins of 46.5-47.5%.`,
+  },
+  {
+    id: "nvda-q3-2025",
+    source: "NVDA Q3 FY2025 Earnings Call",
+    type: "earnings" as const,
+    ticker: "NVDA",
+    date: "2025-11-20",
+    content: `NVIDIA CEO Jensen Huang: Data center revenue reached $30.8 billion, up 112% year-over-year. Blackwell architecture shipments began ramping in Q3 and we expect Q4 to be our largest Blackwell quarter yet. Demand for GB200 NVL72 systems is extraordinary — we have visibility into significant backlog extending into fiscal 2027. Our software platform, including CUDA and the NIM microservices ecosystem, now generates over $2 billion in annualized revenue. Sovereign AI is a major new workload category with governments in 50+ countries deploying national AI infrastructure. Gaming revenue of $3.3 billion reflects strong RTX adoption. CFO Colette Kress: Q4 guidance is $37.5 billion plus or minus 2%. We expect Blackwell gross margins to improve as supply constraints ease. The supply chain is executing well but demand continues to outpace supply for high-end compute.`,
+  },
+  {
+    id: "msft-q2-2025",
+    source: "MSFT Q2 FY2025 Earnings Call",
+    type: "earnings" as const,
+    ticker: "MSFT",
+    date: "2025-01-29",
+    content: `Microsoft CEO Satya Nadella: Microsoft Cloud revenue reached $40.9 billion, up 21% year-over-year. Azure and other cloud services grew 31%, accelerating from last quarter with 13 points of that growth driven by AI. Copilot customers in enterprise doubled quarter-over-quarter. We now have 85,000 organizations using Azure OpenAI Service. Commercial bookings grew 67% year-over-year, the strongest in over 6 quarters, driven by multi-billion dollar AI commitments. GitHub Copilot now has 1.3 million paid subscribers with 50,000+ organizations. CFO Amy Hood: Q3 guidance: revenue $68.7-69.7 billion. Azure growth guidance of 34-35% for Q3. Capital expenditures will remain elevated at $22-23 billion per quarter as we invest in AI infrastructure globally. We're seeing 5-6 quarter payback periods on our data center investments.`,
+  },
+  {
+    id: "meta-q4-2025",
+    source: "META Q4 2024 Earnings Call",
+    type: "earnings" as const,
+    ticker: "META",
+    date: "2025-01-29",
+    content: `Meta CEO Mark Zuckerberg: We had a strong end to 2024. Revenue grew 21% to $48.4 billion in Q4. Daily active people across our family of apps reached 3.35 billion. Llama 4 is our most capable model yet and is driving significant improvements in recommendation quality, ads targeting, and new AI assistant features. We're planning to spend $60-65 billion in capital expenditures in 2025, the largest single-year investment in our history, almost entirely on AI infrastructure. Threads now has 320 million monthly active users. CFO Susan Li: Q1 2025 revenue guidance is $39.5-41.8 billion. We expect total expenses of $114-119 billion for full year 2025 as we invest aggressively. Reality Labs operating loss guidance is $17-19 billion for 2025.`,
+  },
+  {
+    id: "jpm-q4-2024",
+    source: "JPMorgan Q4 2024 Earnings Call",
+    type: "earnings" as const,
+    ticker: "JPM",
+    date: "2025-01-15",
+    content: `JPMorgan CEO Jamie Dimon: We earned $58.5 billion of net income for the full year 2024, a record. Return on equity was 17% for the year. Net interest income was $23.5 billion in Q4, slightly ahead of our guidance. Investment banking fees were up 49% year-over-year as deal activity continued to recover. Trading revenue of $7.0 billion was up 21%. We continue to be cautious on the macro environment. Inflation remains sticky, geopolitical risks are elevated, and fiscal deficits are unsustainable in my view. We remain prepared for a wide range of outcomes including a recession scenario. On AI: we have over 2,000 AI use cases in production and 200 in development. CFO Jeremy Barnum: Net interest income guidance for 2025 is approximately $94 billion. We expect credit costs to normalize modestly from current levels.`,
+  },
+  {
+    id: "fomc-dec-2024",
+    source: "FOMC Minutes December 2024",
+    type: "fomc" as const,
+    date: "2025-01-08",
+    content: `Federal Open Market Committee, December 17-18, 2024 meeting minutes. The Committee voted 11-1 to reduce the federal funds rate target range by 25 basis points to 4.25-4.50%. The dissent came from President Hammack who preferred to hold rates unchanged. Participants noted that inflation has eased substantially from its peak but remains somewhat elevated relative to the 2 percent longer-run goal. Core PCE inflation was running at 2.8% as of October. Labor market conditions have eased from their previously tight levels but remain solid. Unemployment rate has stabilized at 4.2%. Several participants noted that the neutral rate may have risen, implying fewer future cuts than previously anticipated. The Committee noted uncertainty about the path of fiscal policy, trade policy, and immigration policy under the incoming administration. Participants noted that the pace of further policy adjustments will depend on incoming data and evolving outlooks. Market participants are pricing approximately 1-2 additional 25bp cuts in 2025.`,
+  },
+  {
+    id: "fomc-jan-2025",
+    source: "FOMC Minutes January 2025",
+    type: "fomc" as const,
+    date: "2025-02-19",
+    content: `Federal Open Market Committee, January 28-29, 2025 meeting minutes. The Committee voted unanimously to hold the federal funds rate target range at 4.25-4.50%. Participants agreed that the risks to achieving the Committee's employment and inflation goals are roughly in balance. However, the Committee noted heightened uncertainty around the economic outlook due to potential changes in trade, immigration, and fiscal policy. Several participants expressed concern that tariffs announced or anticipated by the incoming administration could add upward pressure to inflation, potentially slowing the return to 2 percent. Participants discussed the pace of quantitative tightening and noted the balance sheet is close to an appropriate level. The median projection in the December SEP called for two 25bp cuts in 2025, but several participants noted the possibility of holding rates unchanged for all of 2025 if inflation progress stalls. The next meeting is scheduled for March 18-19.`,
+  },
+  {
+    id: "sellside-nvda-2025",
+    source: "Goldman Sachs NVDA Initiation Note",
+    type: "sellside" as const,
+    ticker: "NVDA",
+    date: "2025-03-15",
+    content: `We initiate coverage of NVIDIA with a Buy rating and $200 price target. Our thesis: NVIDIA's data center dominance is durable for 3-5 years due to its CUDA software moat, not just hardware performance. Key points: (1) Software lock-in — over 4 million developers have written CUDA code; switching costs are enormous. (2) Systems integration — NVL72 racks require NVIDIA networking (InfiniBand), NVIDIA memory (HBM sourced through NVIDIA), and NVIDIA software. This full-stack approach increases ASP and margins. (3) Sovereign AI tailwind — governments spending billions on national AI infrastructure, a market NVIDIA is uniquely positioned to capture with end-to-end solutions. Risks: AMD MI300X gaining traction in hyperscaler custom silicon deployments, potential export control tightening, and Blackwell production ramp execution. We model 80% revenue growth in FY2026 with gross margins recovering to 73%.`,
+  },
+  {
+    id: "macro-fed-hike-2022",
+    source: "Macro Scenario: 2022 Fed Hiking Cycle",
+    type: "macro" as const,
+    date: "2022-12-31",
+    content: `The Federal Reserve raised the federal funds rate from near-zero to 4.5% in 2022, the most aggressive tightening since the 1980s Volcker era, totaling 425 basis points across 7 hikes. Asset returns: S&P 500 -19.4%, NASDAQ -33.1%, investment grade bonds -15.1%, US Treasuries -13.4% (worst year since 1788), Bitcoin -65%, Real estate (REITs) -25.2%. Gold -0.3% (performed relatively well as hedge). The USD strengthened 15% vs DXY as rate differentials widened. Key lessons: (1) Duration risk was catastrophic — long-duration assets (growth stocks, long bonds) suffered most. (2) Value and energy outperformed dramatically — energy sector +59% as commodities spiked. (3) Cash yielded positive real returns for first time in years. (4) Correlation between stocks and bonds turned positive, breaking 20+ year diversification assumption. Macro regime: high inflation + rising rates = bear market across most asset classes simultaneously.`,
+  },
+  {
+    id: "macro-covid-2020",
+    source: "Macro Scenario: COVID-19 Market Crash and Recovery",
+    type: "macro" as const,
+    date: "2020-12-31",
+    content: `COVID-19 triggered the fastest bear market in history — S&P 500 fell 34% in 33 days (Feb-March 2020), surpassing the speed of the 1929 crash. Federal Reserve cut rates to zero and launched unlimited QE within weeks. CARES Act provided $2.2 trillion in fiscal stimulus. S&P 500 recovered all losses by August 2020 and gained 16.3% for the full year. NASDAQ surged 43.6% as work-from-home accelerated tech adoption. Small caps (Russell 2000) -5% for the year as economic uncertainty weighed on smaller businesses. Cyclicals (airlines, hotels, cruises) down 50-70%. Key trades: (1) Buy dip aggressively — Fed backstop eliminated tail risk. (2) Long growth/tech, short cyclicals. (3) Long stay-at-home basket (Zoom, Peloton, DoorDash). (4) SPAC boom as retail flooded into markets. Macro lesson: central bank intervention speed and scale is the primary variable; traditional recession playbooks failed to account for the velocity of policy response.`,
+  },
+  {
+    id: "macro-debt-ceiling-2023",
+    source: "Macro Scenario: 2023 US Debt Ceiling Crisis",
+    type: "macro" as const,
+    date: "2023-06-30",
+    content: `The US reached its debt ceiling in January 2023, triggering months of political brinkmanship before a resolution in June 2023. Markets showed surprising resilience despite X-date risk (estimated June 1 by Treasury Secretary Yellen). Key market dynamics: T-Bills maturing around X-date traded at 5.5-6% vs normal yields of 5.0-5.1%, representing a 50-100bp liquidity premium for default risk. CDS spreads on US sovereign debt spiked to highest levels since 2011. Dollar showed only modest weakness. Equity markets sold off modestly in May but quickly recovered post-resolution. S&P 500 ended H1 2023 up 16.9% as AI enthusiasm dominated the narrative. Key lesson: debt ceiling events create temporary volatility but historically resolve without default; the risk premium in short-term T-Bills around X-date is the clearest market signal. Post-resolution, Treasury accelerated issuance to rebuild TGA, briefly draining liquidity from markets in July-August 2023.`,
+  },
+];
+
+export const DEFAULT_WATCHLIST = [
+  { ticker: "AAPL", name: "Apple Inc." },
+  { ticker: "NVDA", name: "NVIDIA Corp." },
+  { ticker: "MSFT", name: "Microsoft Corp." },
+  { ticker: "META", name: "Meta Platforms" },
+  { ticker: "JPM", name: "JPMorgan Chase" },
+  { ticker: "AMZN", name: "Amazon.com" },
+];
+
+export const MOCK_PORTFOLIO = [
+  { ticker: "NVDA", name: "NVIDIA Corp.", shares: 150, avgCost: 480.0 },
+  { ticker: "AAPL", name: "Apple Inc.", shares: 400, avgCost: 175.0 },
+  { ticker: "MSFT", name: "Microsoft Corp.", shares: 120, avgCost: 380.0 },
+  { ticker: "META", name: "Meta Platforms", shares: 85, avgCost: 520.0 },
+  { ticker: "JPM", name: "JPMorgan Chase", shares: 200, avgCost: 210.0 },
+  { ticker: "AMZN", name: "Amazon.com", shares: 90, avgCost: 185.0 },
+];

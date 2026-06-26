@@ -1,64 +1,103 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useCallback, useState } from "react";
+import Link from "next/link";
+import { BarChart2, BookOpen } from "lucide-react";
+import { WatchlistPanel } from "@/components/WatchlistPanel";
+import { NewsFeed } from "@/components/NewsFeed";
+import { ChatDesk } from "@/components/ChatDesk";
+import { JarvisVoice } from "@/components/JarvisVoice";
+import type { ScoredArticle } from "@/types";
+
+export default function Dashboard() {
+  const [watchlistTickers, setWatchlistTickers] = useState<string[]>([]);
+  const [pendingAlert, setPendingAlert] = useState<ScoredArticle | null>(null);
+  const [voiceInput, setVoiceInput] = useState<string | undefined>();
+
+  const handleHighSignal = useCallback((article: ScoredArticle) => {
+    setPendingAlert(article);
+  }, []);
+
+  const handleVoiceCommand = useCallback((text: string) => {
+    setVoiceInput(text);
+    setTimeout(() => setVoiceInput(undefined), 100);
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="flex flex-col h-screen bg-background overflow-hidden">
+      {/* Top bar */}
+      <header className="flex-shrink-0 h-9 border-b border-border flex items-center justify-between px-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <BarChart2 size={13} className="text-primary" />
+            <span className="text-xs font-mono font-semibold tracking-wider text-foreground">
+              DEETER INTELLIGENCE
+            </span>
+          </div>
+          <span
+            className="text-[9px] font-mono px-1.5 py-0.5 rounded"
+            style={{
+              background: "oklch(0.60 0.17 142 / 0.15)",
+              color: "oklch(0.60 0.17 142)",
+              border: "1px solid oklch(0.60 0.17 142 / 0.3)",
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            LIVE
+          </span>
         </div>
+
+        <div className="flex items-center gap-3">
+          <Link
+            href="/research"
+            className="flex items-center gap-1 text-[10px] font-mono text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <BookOpen size={11} />
+            Research
+          </Link>
+          <span className="text-[10px] font-mono text-muted-foreground">
+            {new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZoneName: "short",
+            })}
+          </span>
+        </div>
+      </header>
+
+      {/* Main 3-column layout */}
+      <main className="flex-1 overflow-hidden grid grid-cols-[220px_1fr_300px] min-h-0">
+        {/* Left: Watchlist */}
+        <aside className="border-r border-border overflow-hidden flex flex-col min-h-0 bg-card">
+          <WatchlistPanel onWatchlistChange={setWatchlistTickers} />
+        </aside>
+
+        {/* Center: News Feed */}
+        <section className="border-r border-border overflow-hidden flex flex-col min-h-0">
+          <NewsFeed
+            tickers={watchlistTickers}
+            onHighSignal={handleHighSignal}
+          />
+        </section>
+
+        {/* Right: Chat + JARVIS */}
+        <aside className="overflow-hidden flex flex-col min-h-0 bg-card">
+          <div className="flex flex-col h-full">
+            {/* Chat takes ~70% */}
+            <div className="flex-1 min-h-0 border-b border-border overflow-hidden">
+              <ChatDesk
+                initialMessage={voiceInput}
+                onMessageSent={() => {}}
+              />
+            </div>
+            {/* JARVIS takes ~30% */}
+            <div className="h-44 flex-shrink-0 overflow-hidden">
+              <JarvisVoice
+                onVoiceCommand={handleVoiceCommand}
+                pendingAlert={pendingAlert}
+              />
+            </div>
+          </div>
+        </aside>
       </main>
     </div>
   );
