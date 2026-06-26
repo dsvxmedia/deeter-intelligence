@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateText, Output } from "ai";
+import type { LanguageModelV4 } from "@ai-sdk/provider";
 import { z } from "zod";
 import { CLAUDE_MODEL, GPT_MODEL, GEMINI_MODEL, SYSTEM_PROMPT } from "@/lib/ai-client";
 import type { Article, CouncilVote, CouncilResult } from "@/types";
@@ -18,7 +19,8 @@ const SynthesisSchema = z.object({
 });
 
 async function getVote(
-  model: string,
+  model: LanguageModelV4,
+  modelName: string,
   article: Article,
   tickers: string[]
 ): Promise<CouncilVote> {
@@ -30,7 +32,7 @@ async function getVote(
     output: Output.object({ schema: VoteSchema }),
   });
   return {
-    model,
+    model: modelName,
     relevance: output?.relevance ?? 5,
     sentiment: output?.sentiment ?? "neutral",
     reasoning: output?.reasoning ?? "",
@@ -42,9 +44,9 @@ export async function POST(req: NextRequest) {
     const { article, tickers }: { article: Article; tickers: string[] } = await req.json();
 
     const [claudeVote, gptVote, geminiVote] = await Promise.allSettled([
-      getVote(CLAUDE_MODEL, article, tickers),
-      getVote(GPT_MODEL, article, tickers),
-      getVote(GEMINI_MODEL, article, tickers),
+      getVote(CLAUDE_MODEL, "claude-sonnet-4-6", article, tickers),
+      getVote(GPT_MODEL, "gpt-4o", article, tickers),
+      getVote(GEMINI_MODEL, "gemini-2.0-flash-exp", article, tickers),
     ]);
 
     const votes: CouncilVote[] = [claudeVote, gptVote, geminiVote]

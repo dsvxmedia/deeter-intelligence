@@ -1,6 +1,10 @@
-export const CLAUDE_MODEL = "anthropic/claude-sonnet-4.6";
-export const GPT_MODEL = "openai/gpt-5.4";
-export const GEMINI_MODEL = "google/gemini-2.0-flash-exp";
+import { anthropic } from "@ai-sdk/anthropic";
+import { openai } from "@ai-sdk/openai";
+import { google } from "@ai-sdk/google";
+
+export const CLAUDE_MODEL = anthropic("claude-sonnet-4-6");
+export const GPT_MODEL = openai("gpt-4o");
+export const GEMINI_MODEL = google("gemini-2.0-flash-exp");
 
 export const SYSTEM_PROMPT = `You are a sharp trading desk analyst at a $500M private investment firm.
 You have deep knowledge of macro economics, equity markets, and corporate finance.
