@@ -2,6 +2,8 @@
 
 **Live demo:** https://deeter-intelligence.vercel.app &nbsp;·&nbsp; **GitHub:** https://github.com/dsvxmedia/deeter-intelligence
 
+![Deeter Intelligence — Trading Desk AI Co-Pilot](demo/snapshots/frame-00-at-25.0s.png)
+
 ---
 
 ## The question you asked
@@ -24,7 +26,7 @@ The pitch: instead of a Bloomberg terminal that shows you everything and makes y
 
 | What you asked for | What's built |
 |---|---|
-| **Kill the F5 key** — info pipelines | NewsAPI feed + Finnhub WebSocket quotes. Auto-refreshes every 90s, live price ticks on every position |
+| **Kill the F5 key** — info pipelines | NewsAPI feed + Finnhub WebSocket quotes. Auto-refreshes every 5 minutes, live price ticks on every position |
 | **Live analyst on the desk** | Streaming RAG chat grounded in earnings transcripts, FOMC minutes, and macro scenarios. Sources cited on every response |
 | **Protect attention** | Multi-LLM signal scoring (Claude + GPT + Gemini). Relevance 1-10. Noise threshold slider. Entity → exposure alerts. Regime indicator |
 | **Own the stack** | Entity knowledge graph, in-memory vector store, Python pipeline, all APIs wired end-to-end on Vercel |
@@ -70,12 +72,12 @@ Naive matching catches "NVDA" in a headline. The entity graph catches that a TSM
 
 ```
 DATA LAYER
-  NewsAPI (REST, 90s refresh)
+  NewsAPI (REST, 5-minute refresh)
   Finnhub WebSocket (live price ticks)
   SEC EDGAR (10-K/10-Q/8-K filings, free)
 
 AI LAYER  
-  Claude claude-sonnet-4-6 — signal scoring, RAG chat, filing analysis
+  Claude Sonnet 4.6 (chat/analysis) · Claude Haiku 4.5 (signal scoring) — fast, cost-efficient at scale
   GPT-4o + Gemini — LLM Council votes
   In-memory TF-IDF + cosine similarity — RAG retrieval (swap to Pinecone in prod)
   Entity Knowledge Graph — indirect exposure traversal
@@ -124,6 +126,8 @@ Next.js 16 · TypeScript · Python · AI SDK v7 · shadcn/ui · Tailwind v4 · F
 
 Providers: Anthropic (direct) · OpenAI · Google · NewsAPI · Finnhub · SEC EDGAR
 
+32 Playwright tests covering every panel, all API routes, and a stability suite that verifies no re-render loops under live WebSocket load. All passing.
+
 ---
 
 ## Run it yourself
@@ -140,4 +144,10 @@ Open http://localhost:3000. Add tickers to the watchlist, click the refresh butt
 
 ---
 
-*Built by [@dsvxmedia](https://github.com/dsvxmedia) as a submission for Head of Applied AI & Trading Systems at Deeter Analytics.*
+---
+
+**D. Jackson** — applied AI engineer. I build systems that put real intelligence at the point of decision, not in a dashboard nobody reads.
+
+This is my application for Head of Applied AI & Trading Systems at Deeter Analytics.
+
+→ [deeter-intelligence.vercel.app](https://deeter-intelligence.vercel.app) &nbsp;·&nbsp; [github.com/dsvxmedia](https://github.com/dsvxmedia)
