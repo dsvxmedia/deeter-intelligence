@@ -82,6 +82,21 @@ export const SEED_CORPUS = [
     date: "2023-06-30",
     content: `The US reached its debt ceiling in January 2023, triggering months of political brinkmanship before a resolution in June 2023. Markets showed surprising resilience despite X-date risk (estimated June 1 by Treasury Secretary Yellen). Key market dynamics: T-Bills maturing around X-date traded at 5.5-6% vs normal yields of 5.0-5.1%, representing a 50-100bp liquidity premium for default risk. CDS spreads on US sovereign debt spiked to highest levels since 2011. Dollar showed only modest weakness. Equity markets sold off modestly in May but quickly recovered post-resolution. S&P 500 ended H1 2023 up 16.9% as AI enthusiasm dominated the narrative. Key lesson: debt ceiling events create temporary volatility but historically resolve without default; the risk premium in short-term T-Bills around X-date is the clearest market signal. Post-resolution, Treasury accelerated issuance to rebuild TGA, briefly draining liquidity from markets in July-August 2023.`,
   },
+  {
+    id: "amzn-q1-2026",
+    source: "Amazon Q1 2026 Earnings Call",
+    type: "earnings" as const,
+    ticker: "AMZN",
+    date: "2026-05-01",
+    content: `Amazon CEO Andy Jassy: AWS revenue reached $29.3 billion in Q1, up 21% year-over-year, reaccelerating from Q4 2025. AI workloads are now the fastest-growing segment within AWS and we expect this to continue. Our custom silicon — Trainium3 and Inferentia3 — gives us a 30-40% cost advantage on AI inference versus third-party GPU instances, which is increasingly important as customers optimize inference costs at scale. Amazon Bedrock now serves over 10,000 enterprise customers. Advertising revenue of $13.9 billion grew 18%, continuing to take share from traditional media. North America retail operating margin expanded to 6.2%, driven by regionalization of our fulfillment network. CFO Brian Olsavsky: Q2 guidance: net sales $159-164 billion, operating income $13.0-17.5 billion. We expect AWS growth to remain in the low-to-mid 20% range for the remainder of 2026. Capital expenditures guidance for the full year is $105 billion, primarily data center and AI infrastructure buildout. Free cash flow for the trailing twelve months was $68 billion.`,
+  },
+  {
+    id: "macro-ai-cycle-2025-2026",
+    source: "Macro Scenario: AI Infrastructure Supercycle 2025-2026",
+    type: "macro" as const,
+    date: "2026-01-01",
+    content: `The AI infrastructure buildout of 2025-2026 represents the largest single-cycle capital expenditure surge in technology history. The hyperscalers — Microsoft, Google, Amazon, and Meta — collectively announced over $325 billion in AI capex for 2025 alone. Key market dynamics: NVIDIA Blackwell demand significantly exceeded supply through H1 2025, with lead times extending to 52+ weeks. This created a semiconductor supply chain bottleneck analogous to the 2021-22 automotive chip shortage. Asset return implications: AI beneficiaries (NVDA, AVGO, ANET, TSM) dramatically outperformed; traditional technology (enterprise software, consumer hardware) lagged. Utilities and data center REITs re-rated higher on power demand. Bear case risks: (1) Capex digestion — hyperscalers may pull back capex in H2 2026 if ROI doesn't materialize quickly, creating a demand air pocket for NVDA. (2) China export controls — each new restriction round creates uncertainty in China revenue for US chip companies. (3) Inference commoditization — open source models reduce the cost per token rapidly, potentially limiting the revenue potential of proprietary model providers. Key portfolio implication: AI infrastructure is a multi-year cycle, but timing the digestion phases is critical. Current regime: RISK-ON for AI infrastructure names, UNCERTAIN for AI software monetization.`,
+  },
 ];
 
 export const DEFAULT_WATCHLIST = [

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, FileText, Loader2, TrendingUp, TrendingDown } from "lucide-react";
+import { Search, FileText, Loader2, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Filing } from "@/types";
@@ -215,8 +215,8 @@ export function FilingAnalyzer() {
                 </p>
                 <ul className="space-y-0.5">
                   {analysis.keyRisks.map((r, i) => (
-                    <li key={i} className="text-[10px] text-muted-foreground flex gap-1.5">
-                      <span>⚠</span>
+                    <li key={i} className="text-[10px] text-muted-foreground flex gap-1.5 items-start">
+                      <AlertTriangle size={9} className="flex-shrink-0 mt-0.5" style={{ color: "oklch(0.78 0.18 85)" }} />
                       {r}
                     </li>
                   ))}

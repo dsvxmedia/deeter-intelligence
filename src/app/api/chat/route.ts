@@ -16,8 +16,22 @@ export async function POST(req: Request) {
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   const query = lastUser?.parts?.find((p) => p.type === "text")?.text ?? "";
 
+  const TRACKED_TICKERS = ["AAPL", "NVDA", "MSFT", "META", "JPM", "TSLA", "GOOGL", "AMZN", "SPY", "TLT", "GLD"];
+  const mentionedTickers = TRACKED_TICKERS.filter((t) => query.toUpperCase().includes(t));
+
   const store = getVectorStore();
-  const sources = store.search(query, 4);
+  const semanticSources = store.search(query, 4);
+  const tickerSources = store.searchByTickers(mentionedTickers);
+
+  const seenIds = new Set(semanticSources.map((s) => s.id));
+  const sources = [...semanticSources];
+  for (const s of tickerSources) {
+    if (!seenIds.has(s.id) && sources.length < 6) {
+      sources.push(s);
+      seenIds.add(s.id);
+    }
+  }
+
   const context = sources
     .map((s) => `[Source: ${s.source}]\n${s.content.slice(0, 800)}`)
     .join("\n\n---\n\n");

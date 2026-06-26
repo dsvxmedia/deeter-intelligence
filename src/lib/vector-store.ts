@@ -58,6 +58,13 @@ class VectorStore {
       .sort((a, b) => b.similarity - a.similarity)
       .slice(0, topK);
   }
+
+  searchByTickers(tickers: string[]): RAGSource[] {
+    if (tickers.length === 0) return [];
+    return this.docs
+      .filter((d) => d.metadata.ticker && tickers.includes(d.metadata.ticker))
+      .map((d) => ({ id: d.id, content: d.content, source: d.metadata.source, similarity: 1.0 }));
+  }
 }
 
 let store: VectorStore | null = null;
