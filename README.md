@@ -2,7 +2,7 @@
 
 > Real-time AI co-pilot for trading desks. Live news signals, multi-model consensus scoring, RAG chat, SEC EDGAR integration, and JARVIS voice interface — built as a live application for the Head of Applied AI & Trading Systems role at Deeter Analytics.
 
-**Live demo:** [coming after deploy]  
+**Live demo:** https://deeter-intelligence.vercel.app  
 **GitHub:** https://github.com/dsvxmedia/deeter-intelligence
 
 ---
