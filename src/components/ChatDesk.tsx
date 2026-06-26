@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Send, Loader2 } from "lucide-react";
@@ -18,7 +18,16 @@ export function ChatDesk({ initialMessage, onMessageSent }: Props) {
   const { messages, sendMessage, status } = useChat({ transport });
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const pendingInitial = useRef(initialMessage);
+
+  useEffect(() => {
+    if (!initialMessage || status !== "ready") return;
+    sendMessage({ text: initialMessage });
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    });
+  // sendMessage identity is stable; status excluded to avoid double-fire on ready transition
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialMessage]);
 
   const handleSend = () => {
     const text = inputRef.current?.value.trim();
@@ -40,18 +49,6 @@ export function ChatDesk({ initialMessage, onMessageSent }: Props) {
       handleSend();
     }
   };
-
-  const sendVoice = (text: string) => {
-    if (status !== "ready") return;
-    sendMessage({ text });
-    if (inputRef.current) inputRef.current.value = "";
-  };
-
-  if (pendingInitial.current && messages.length === 0) {
-    const msg = pendingInitial.current;
-    pendingInitial.current = undefined;
-    setTimeout(() => sendVoice(msg), 100);
-  }
 
   return (
     <div className="flex flex-col h-full" id="chat-desk">

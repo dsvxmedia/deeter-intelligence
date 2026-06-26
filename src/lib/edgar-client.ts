@@ -1,18 +1,6 @@
 import type { Filing } from "@/types";
 
-const EDGAR = "https://efts.sec.gov";
 const SUBMISSIONS = "https://data.sec.gov/submissions";
-
-export async function searchCIK(ticker: string): Promise<string | null> {
-  const res = await fetch(
-    `${EDGAR}/LATEST/search-index?q=%22${ticker}%22&dateRange=custom&startdt=2020-01-01&forms=10-K,10-Q,8-K&hits.hits._source=period_of_report,display_names,file_date,period_of_report`,
-    { next: { revalidate: 3600 } }
-  );
-  if (!res.ok) return null;
-  const data = await res.json();
-  const hit = data.hits?.hits?.[0]?._source;
-  return hit?.entity_id ?? null;
-}
 
 export async function getFilingsByCIK(cik: string): Promise<Filing[]> {
   const paddedCIK = cik.padStart(10, "0");
