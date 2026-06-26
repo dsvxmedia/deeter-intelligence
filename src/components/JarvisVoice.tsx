@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { Mic, MicOff, Volume2 } from "lucide-react";
 import { speak, stopSpeaking } from "@/lib/tts";
 import type { ScoredArticle } from "@/types";
@@ -141,17 +142,29 @@ export function JarvisVoice({ onVoiceCommand, pendingAlert }: Props) {
           ))}
         </div>
 
-        <button
+        <motion.button
           onClick={toggleListen}
           disabled={state === "processing" || state === "speaking"}
-          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 ${
+          animate={
+            state === "idle"
+              ? { scale: [1, 1.04, 1], opacity: [0.7, 1, 0.7] }
+              : state === "listening"
+              ? { scale: 1.1 }
+              : { scale: 1 }
+          }
+          transition={
+            state === "idle"
+              ? { duration: 3, repeat: Infinity, ease: "easeInOut" }
+              : { duration: 0.15 }
+          }
+          className={`w-12 h-12 rounded-full flex items-center justify-center ${
             state === "listening"
-              ? "bg-[oklch(0.60_0.17_142)] text-[oklch(0.07_0_0)] scale-110"
+              ? "bg-[oklch(0.60_0.17_142)] text-[oklch(0.07_0_0)]"
               : "bg-secondary hover:bg-secondary/80 text-foreground"
           } disabled:opacity-40`}
         >
           {state === "listening" ? <MicOff size={20} /> : <Mic size={20} />}
-        </button>
+        </motion.button>
 
         {transcript && (
           <p className="text-[10px] font-mono text-center text-muted-foreground italic max-w-full truncate">

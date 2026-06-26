@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ExternalLink, RefreshCw, Sliders } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
@@ -27,13 +28,20 @@ const SENTIMENT_COLORS = {
 function ArticleCard({ article }: { article: ScoredArticle }) {
   const tierClass =
     article.relevance >= 8
-      ? "signal-high article-arrive"
+      ? "signal-high"
       : article.relevance >= 5
-      ? "signal-mid article-arrive"
-      : "signal-low article-arrive";
+      ? "signal-mid"
+      : "signal-low";
 
   return (
-    <div className={`px-3 py-2.5 border-b border-border/50 ${tierClass}`}>
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: -6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, height: 0, overflow: "hidden", paddingTop: 0, paddingBottom: 0 }}
+      transition={{ duration: 0.22, ease: "easeOut" }}
+      className={`px-3 py-2.5 border-b border-border/50 ${tierClass}`}
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <a
@@ -88,7 +96,7 @@ function ArticleCard({ article }: { article: ScoredArticle }) {
           </Badge>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -281,11 +289,17 @@ export function NewsFeed({ tickers, onHighSignal }: Props) {
 
       <ScrollArea className="flex-1">
         {filtered.length === 0 ? (
-          <div className="flex items-center justify-center h-32 text-[11px] text-muted-foreground">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-center justify-center h-32 text-[11px] text-muted-foreground"
+          >
             {loading ? "Fetching signals…" : "No articles above threshold"}
-          </div>
+          </motion.div>
         ) : (
-          filtered.map((a) => <ArticleCard key={a.id} article={a} />)
+          <AnimatePresence mode="popLayout" initial={false}>
+            {filtered.map((a) => <ArticleCard key={a.id} article={a} />)}
+          </AnimatePresence>
         )}
       </ScrollArea>
 

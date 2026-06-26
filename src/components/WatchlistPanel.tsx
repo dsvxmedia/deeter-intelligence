@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -155,13 +156,20 @@ export function WatchlistPanel({ onWatchlistChange }: Props) {
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
             Portfolio
           </span>
-          <div
-            className="text-[10px] font-mono tabular-nums flex items-center gap-1"
-            style={{ color: pnlPositive ? "oklch(0.60 0.17 142)" : "oklch(0.58 0.22 25)" }}
-          >
-            {pnlPositive ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
-            {pnlPositive ? "+" : ""}{formatCurrency(unrealizedPnl)} ({unrealizedPct >= 0 ? "+" : ""}{unrealizedPct.toFixed(1)}%)
-          </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${Math.round(unrealizedPnl)}-${pnlPositive}`}
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 4 }}
+              transition={{ duration: 0.18 }}
+              className="text-[10px] font-mono tabular-nums flex items-center gap-1"
+              style={{ color: pnlPositive ? "oklch(0.60 0.17 142)" : "oklch(0.58 0.22 25)" }}
+            >
+              {pnlPositive ? <TrendingUp size={9} /> : <TrendingDown size={9} />}
+              {pnlPositive ? "+" : ""}{formatCurrency(unrealizedPnl)} ({unrealizedPct >= 0 ? "+" : ""}{unrealizedPct.toFixed(1)}%)
+            </motion.div>
+          </AnimatePresence>
         </div>
         <div className="px-2 pb-2 space-y-0.5 max-h-28 overflow-y-auto">
           {portfolio.positions.map((p) => {
